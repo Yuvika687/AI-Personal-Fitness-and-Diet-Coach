@@ -74,11 +74,6 @@ cd frontend
 python -m http.server 3000
 ```
 
-### 4. Access the App
-- 🌐 Frontend: http://localhost:3000
-- ⚙️ Backend API: http://localhost:8000
-- 📄 API Docs: http://localhost:8000/docs
-
 ---
 
 ## 🎯 Why I Built This
@@ -104,15 +99,6 @@ This project fixes all of that with AI. 🙌
 | POST | /chat/ask | AI Chatbot |
 | POST | /tracking/log | Habit Logging |
 | GET | /tracking/predict | AI Behavior Prediction |
-
----
-
-## 📊 GitHub Stats
-
-![Yuvika's GitHub Stats](https://github-readme-stats.vercel.app/api?username=Yuvika687&show_icons=true&theme=tokyonight&hide_border=true)
-![Top Languages](https://github-readme-stats.vercel.app/api/top-langs/?username=Yuvika687&layout=compact&theme=tokyonight&hide_border=true)
-
-[![GitHub Streak](https://streak-stats.demolab.com?user=Yuvika687&theme=tokyonight&hide_border=true)](https://git.io/streak-stats)
 
 ---
 
