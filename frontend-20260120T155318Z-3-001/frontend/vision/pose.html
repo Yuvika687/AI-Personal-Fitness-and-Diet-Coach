@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Pose Detection | AI Gym Pro</title>
+
+    <!-- Fonts & Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../css/variables.css">
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/layout.css">
+
+    <style>
+        .camera-wrapper {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            background: #000;
+            border-radius: var(--radius-lg);
+            border: 2px solid var(--border-subtle);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #video,
+        #output {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        #output {
+            z-index: 2;
+        }
+
+        .pose-stat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .pose-stat {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 15px;
+            text-align: center;
+        }
+
+        .pose-stat h4 {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .pose-stat .value {
+            font-size: 1.5rem;
+            color: var(--primary);
+            font-weight: 700;
+            font-family: monospace;
+        }
+
+        .workout-option {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            cursor: pointer;
+            transition: var(--trans-normal);
+            text-align: center;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .workout-option:hover,
+        .workout-option.active {
+            background: rgba(212, 175, 55, 0.1);
+            border-color: var(--primary);
+            transform: translateY(-5px);
+        }
+
+        .workout-option i {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .feedback-box {
+            background: rgba(0, 0, 0, 0.4);
+            border-left: 4px solid var(--primary);
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 4px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-dumbbell"></i>
+                    <span>AI Gym Pro</span>
+                </div>
+            </div>
+
+            <nav class="nav-links">
+                <a href="../index.html" class="nav-item">
+                    <i class="fas fa-th-large"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="../habit.html" class="nav-item">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Habit Tracker</span>
+                </a>
+                <a href="#" class="nav-item" onclick="toggleChatWindow()">
+                    <i class="fas fa-robot"></i>
+                    <span>AI Coach</span>
+                </a>
+                <a href="pose.html" class="nav-item active">
+                    <i class="fas fa-camera"></i>
+                    <span>Pose Analysis</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-mini-profile">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-info-mini">
+                        <h4>My Profile</h4>
+                        <p>Settings</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Wrapper -->
+        <div class="main-wrapper">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="page-title">
+                    <h2>Pose Analysis</h2>
+                </div>
+                <div class="header-actions">
+                    <a href="../index.html" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-arrow-left"></i> Dashboard
+                    </a>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <main class="content-area">
+
+                <div class="grid" style="grid-template-columns: 2.5fr 1fr;">
+
+                    <!-- Main Camera Area -->
+                    <div>
+                        <div class="camera-wrapper shadow-lg mb-3">
+                            <video id="video" playsinline></video>
+                            <canvas id="output"></canvas>
+                            <div id="camera-placeholder"
+                                style="z-index: 1; text-align: center; color: var(--text-muted);">
+                                <i class="fas fa-camera" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                                <p>Allow camera access to begin analysis</p>
+                            </div>
+                        </div>
+
+                        <!-- Analysis Controls -->
+                        <div class="flex-center gap-3">
+                            <button class="btn btn-primary" onclick="startCamera()" id="startBtn">
+                                <i class="fas fa-play"></i> Start Camera
+                            </button>
+                            <button class="btn btn-secondary" onclick="stopCamera()" id="stopBtn" disabled>
+                                <i class="fas fa-stop"></i> Stop
+                            </button>
+                            <button class="btn btn-secondary" onclick="startWorkout()" id="workoutBtn">
+                                <i class="fas fa-dumbbell"></i> Start Tracking
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Right Sidebar: Controls & Stats -->
+                    <div class="flex" style="flex-direction: column; gap: 20px;">
+
+                        <!-- Workout Selector -->
+                        <div class="card">
+                            <h3 class="mb-3">Select Exercise</h3>
+                            <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 10px;">
+                                <div class="workout-option active" onclick="selectWorkout('squat')">
+                                    <i class="fas fa-chair"></i>
+                                    <span>Squats</span>
+                                </div>
+                                <div class="workout-option" onclick="selectWorkout('pushup')">
+                                    <i class="fas fa-hands-wash"></i>
+                                    <span>Push-ups</span>
+                                </div>
+                                <div class="workout-option" onclick="selectWorkout('bicep')">
+                                    <i class="fas fa-dumbbell"></i>
+                                    <span>Curls</span>
+                                </div>
+                                <div class="workout-option" onclick="selectWorkout('plank')">
+                                    <i class="fas fa-user-minus"></i>
+                                    <span>Plank</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Live Stats -->
+                        <div class="card">
+                            <h3 class="mb-2">Live Stats</h3>
+                            <div class="pose-stat-grid">
+                                <div class="pose-stat">
+                                    <h4>Reps</h4>
+                                    <div class="value" id="repCount">0</div>
+                                </div>
+                                <div class="pose-stat">
+                                    <h4>Form</h4>
+                                    <div class="value" id="formScore">0%</div>
+                                </div>
+                                <div class="pose-stat">
+                                    <h4>Cals</h4>
+                                    <div class="value" id="caloriesEst">0</div>
+                                </div>
+                                <div class="pose-stat">
+                                    <h4>Status</h4>
+                                    <div class="value" id="poseStatus" style="font-size: 1rem;">Ready</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- AI Feedback -->
+                        <div class="card" style="flex: 1;">
+                            <h3>AI Feedback</h3>
+                            <div class="feedback-box" id="feedbackList">
+                                <div style="color: #4CAF50;"><i class="fas fa-check"></i> System Initialized</div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Hidden Chat Window (Shared) -->
+    <!-- Hidden Chat Window (Shared) -->
+    <div id="aiChatWindow" class="ai-chat-window">
+        <div class="ai-chat-header">
+            <div class="flex items-center gap-3">
+                <div class="btn-icon"
+                    style="width: 32px; height: 32px; background: var(--primary-dim); color: var(--primary);"><i
+                        class="fas fa-robot"></i></div>
+                <span style="font-weight: 700; color: var(--text-main); font-size: 1.1rem;">AI Coach</span>
+            </div>
+            <button onclick="toggleChatWindow()" style="color: var(--text-muted); padding: 5px; transition: 0.2s;"><i
+                    class="fas fa-times"></i></button>
+        </div>
+
+        <div id="chatMessages" class="ai-chat-messages">
+            <!-- Messages go here -->
+            <div class="chat-bubble-ai">
+                <p style="margin: 0; font-size: 0.95rem;">Hello! I'm monitoring your form. Start a workout to get
+                    feedback!</p>
+            </div>
+        </div>
+
+        <div class="ai-chat-footer">
+            <input type="text" id="chatInput" placeholder="Ask about your form..." class="ai-chat-input">
+            <button onclick="sendMessage()" class="btn-icon"
+                style="background: var(--primary); color: #000; width: 42px; height: 42px;"><i
+                    class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <!-- MediaPipe Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils"></script>
+
+    <script src="pose.js"></script>
+    <script>
+        // Shared UI scripts
+        function toggleChatWindow() {
+            const chat = document.getElementById('aiChatWindow');
+            chat.style.display = chat.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        // Handle Camera Placeholder
+        // Hook into startCamera from pose.js if possible, or just toggle visibility
+        document.getElementById('startBtn').addEventListener('click', function () {
+            document.getElementById('camera-placeholder').style.display = 'none';
+        });
+
+        // Ensure selectWorkout highlights the correct option
+        function selectWorkout(type) {
+            document.querySelectorAll('.workout-option').forEach(el => el.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            // Call original selectWorkout if it's GLOBAL, otherwise we need to rely on pose.js exposing it
+            if (window.selectWorkout) window.selectWorkout(type);
+        }
+    </script>
+</body>
+
+</html>

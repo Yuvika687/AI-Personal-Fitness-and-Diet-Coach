@@ -1,0 +1,284 @@
+/* frontend/chat/chat.css - Fixed Black/Gold Theme */
+#aiChatButton {
+    position: fixed;
+    bottom: 30px;
+    right: 30px; /* Position it properly */
+    background: linear-gradient(135deg, #D4AF37, #8B4513);
+    color: #000000 !important; /* Force black color */
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex !important; /* Force display */
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.6);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 10000 !important; /* Highest priority */
+    border: 2px solid rgba(255, 215, 0, 0.5);
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+#aiChatButton i {
+    color: #000000 !important; /* Force icon to be black */
+    text-shadow: 0 0 3px rgba(255, 255, 255, 0.5);
+}
+
+#aiChatButton:hover {
+    transform: scale(1.15) rotate(15deg);
+    box-shadow: 0 12px 35px rgba(212, 175, 55, 0.8);
+    background: linear-gradient(135deg, #FFD700, #DAA520);
+}
+
+#aiChatWindow {
+    position: fixed;
+    bottom: 100px;
+    right: 30px;
+    width: 380px;
+    height: 500px;
+    background: rgba(10, 10, 10, 0.98);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    display: none;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+    border: 2px solid rgba(212, 175, 55, 0.5);
+    overflow: hidden;
+    z-index: 9999;
+    animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+#aiChatHeader {
+    background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+    color: #D4AF37;
+    padding: 20px;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid rgba(212, 175, 55, 0.4);
+    text-transform: uppercase;
+}
+
+#aiChatClose {
+    cursor: pointer;
+    color: #C0C0C0;
+    font-size: 18px;
+    transition: all 0.3s ease;
+    padding: 8px 12px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+#aiChatClose:hover {
+    background: rgba(212, 175, 55, 0.3);
+    color: #D4AF37;
+    transform: rotate(90deg);
+}
+
+#aiChatMessages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    color: #ffffff;
+    background: rgba(0, 0, 0, 0.4);
+    scroll-behavior: smooth;
+}
+
+.message {
+    max-width: 85%;
+    padding: 12px 18px;
+    margin: 10px 0;
+    border-radius: 18px;
+    line-height: 1.5;
+    font-size: 14px;
+    animation: messageSlide 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    word-wrap: break-word;
+}
+
+@keyframes messageSlide {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.userMsg {
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(139, 69, 19, 0.15));
+    margin-left: auto;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    color: #ffffff;
+}
+
+.aiMsg {
+    background: linear-gradient(135deg, rgba(26, 26, 26, 0.8), rgba(42, 42, 42, 0.9));
+    margin-right: auto;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    color: #f0f0f0;
+}
+
+.aiMsg::before {
+    content: '🤖';
+    position: absolute;
+    left: -35px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    color: #D4AF37;
+}
+
+#aiChatInputArea {
+    display: flex;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.6);
+    border-top: 1px solid rgba(212, 175, 55, 0.3);
+    gap: 10px;
+}
+
+#aiChatInput {
+    flex: 1;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    border-radius: 12px;
+    color: white;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+#aiChatInput:focus {
+    border-color: #D4AF37;
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+}
+
+#aiChatSend {
+    background: linear-gradient(135deg, #D4AF37, #8B4513);
+    color: #000;
+    border: none;
+    padding: 15px 25px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 80px;
+}
+
+#aiChatSend:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
+}
+
+#aiChatSend:active {
+    transform: translateY(0);
+}
+
+/* Scrollbar styling */
+#aiChatMessages::-webkit-scrollbar {
+    width: 6px;
+}
+
+#aiChatMessages::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+
+#aiChatMessages::-webkit-scrollbar-thumb {
+    background: rgba(212, 175, 55, 0.6);
+    border-radius: 10px;
+}
+
+#aiChatMessages::-webkit-scrollbar-thumb:hover {
+    background: rgba(212, 175, 55, 0.8);
+}
+
+/* Typing indicator */
+.typing-indicator {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 15px;
+    background: rgba(212, 175, 55, 0.15);
+    border-radius: 20px;
+    color: #D4AF37;
+    font-style: italic;
+    font-size: 13px;
+}
+
+.typing-indicator span {
+    animation: typing 1.4s infinite;
+    margin: 0 1px;
+}
+
+.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typing {
+    0%, 60%, 100% { opacity: 0.3; }
+    30% { opacity: 1; }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    #aiChatWindow {
+        width: 90%;
+        right: 5%;
+        height: 60vh;
+        bottom: 80px;
+    }
+    
+    #aiChatButton {
+        bottom: 20px;
+        right: 20px;
+        width: 55px;
+        height: 55px;
+    }
+}
+
+/* Force override any purple styles */
+#aiChatButton[style*="purple"],
+#aiChatButton[style*="blue"],
+#aiChatButton[style*="#667eea"],
+#aiChatButton[style*="#764ba2"] {
+    background: linear-gradient(135deg, #D4AF37, #8B4513) !important;
+    color: #000000 !important;
+    border-color: rgba(212, 175, 55, 0.5) !important;
+}
+
+/* Fix for button text color */
+#aiChatButton, #aiChatButton * {
+    color: #000000 !important;
+}
+#aiChatButton {
+    background: linear-gradient(135deg, #D4AF37, #8B4513) !important;
+    color: #000 !important;
+}
+
+#aiChatButton:hover {
+    background: linear-gradient(135deg, #FFD700, #DAA520) !important;
+}

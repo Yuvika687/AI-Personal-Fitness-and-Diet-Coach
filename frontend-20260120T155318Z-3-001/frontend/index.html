@@ -1,0 +1,635 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitForge AI - Elite Fitness Dashboard</title>
+
+    <!-- Fonts & Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/layout.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* Dashboard Specific Styles */
+        .welcome-card {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.1), rgba(0, 0, 0, 0));
+            border: 1px solid var(--border-accent);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 100%;
+            background: radial-gradient(circle at 100% 0%, rgba(212, 175, 55, 0.2), transparent 70%);
+            pointer-events: none;
+        }
+
+        .stat-card-clean {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            transition: var(--trans-normal);
+        }
+
+        .stat-card-clean:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--primary);
+        }
+
+        .stat-info h3 {
+            font-size: 2rem;
+            margin: 0;
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+        }
+
+        .stat-info p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-top: 30px;
+        }
+
+        .action-card {
+            padding: 30px;
+            text-align: center;
+            border: 1px solid var(--border-subtle);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0) 100%);
+        }
+
+        .action-card:hover {
+            background: linear-gradient(180deg, rgba(212, 175, 55, 0.1) 0%, rgba(0, 0, 0, 0) 100%);
+            border-color: var(--primary);
+        }
+
+        .action-icon {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: var(--secondary);
+            transition: var(--trans-normal);
+        }
+
+        .action-card:hover .action-icon {
+            color: var(--primary);
+            transform: scale(1.1);
+        }
+
+        /* Tabs Refined */
+        .tab-nav {
+            display: flex;
+            gap: 20px;
+            border-bottom: 1px solid var(--border-subtle);
+            margin-bottom: 30px;
+        }
+
+        .tab-btn {
+            padding: 12px 0;
+            color: var(--text-muted);
+            position: relative;
+            cursor: pointer;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: var(--trans-fast);
+        }
+
+        .tab-btn::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: var(--trans-normal);
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+        }
+
+        .tab-btn.active::after {
+            width: 100%;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            color: var(--text-main);
+            font-family: inherit;
+            margin-bottom: 15px;
+            transition: var(--trans-fast);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.1);
+        }
+
+        /* Achievements */
+        .achievement-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: var(--radius-md);
+            margin-bottom: 10px;
+            border: 1px solid transparent;
+        }
+
+        .achievement-row.unlocked {
+            border-color: var(--primary);
+            background: rgba(212, 175, 55, 0.05);
+        }
+
+        .achievement-icon {
+            font-size: 1.5rem;
+            color: var(--text-dim);
+        }
+
+        .unlocked .achievement-icon {
+            color: var(--primary);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-dumbbell text-primary"></i>
+                    <span>FitForge <span class="text-primary">AI</span></span>
+                </div>
+            </div>
+
+            <nav class="nav-links">
+                <a href="index.html" class="nav-item active">
+                    <i class="fas fa-th-large"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="habit.html" class="nav-item">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Habit Tracker</span>
+                </a>
+                <a href="#" class="nav-item" onclick="toggleChatWindow()">
+                    <i class="fas fa-robot"></i>
+                    <span>AI Coach</span>
+                </a>
+                <a href="vision/pose.html" class="nav-item">
+                    <i class="fas fa-camera"></i>
+                    <span>Pose Analysis</span>
+                </a>
+                <div class="nav-item" style="margin-top: auto; cursor: pointer;" onclick="handleSettings()">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-mini-profile" onclick="handleGuestClick()">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-info-mini">
+                        <h4 id="user-name-display">Guest User</h4>
+                        <p>Basic Member</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Wrapper -->
+        <div class="main-wrapper">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="page-title">
+                    <h2>Dashboard</h2>
+                </div>
+
+                <div class="header-actions">
+                    <button class="header-btn" title="Notifications" onclick="handleNotifications()">
+                        <i class="fas fa-bell"></i>
+                    </button>
+                    <!-- Theme Toggle Logic (Preserved) -->
+                    <button class="header-btn" title="Theme Toggle" onclick="toggleTheme()">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <button id="auth-btn" class="btn btn-primary"
+                        onclick="document.getElementById('auth-section').scrollIntoView({behavior: 'smooth'})">
+                        Member Access
+                    </button>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <main class="content-area">
+
+                <!-- Hero Section - High End Look -->
+                <div class="mb-4 animate-fade-in"
+                    style="position: relative; border-radius: var(--radius-lg); overflow: hidden; min-height: 250px; display: flex; align-items: center;">
+                    <!-- Stylized Background for Hero -->
+                    <div style="position: absolute; top:0; left:0; width: 100%; height: 100%; z-index: -1;">
+                        <div
+                            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(90deg, rgba(15, 23, 42, 0.9) 0%, rgba(15, 23, 42, 0.4) 100%);">
+                        </div>
+                        <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1470&auto=format&fit=crop"
+                            alt="Gym Background" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+
+                    <div style="padding: 40px; max-width: 700px; z-index: 1;">
+                        <h1 class="mb-2">Welcome Back, <span class="text-primary" id="welcome-name">Warrior</span></h1>
+                        <p style="font-size: 1.1rem; color: #cbd5e1; margin-bottom: 25px;">
+                            Your elite fitness journey continues. Use our AI-powered tools to track, analyze, and crush
+                            your goals.
+                            <span class="text-primary">Evolution starts now.</span>
+                        </p>
+                        <div class="flex gap-3">
+                            <a href="habit.html" class="btn btn-primary">
+                                <i class="fas fa-fire"></i> Log Workout
+                            </a>
+                            <a href="vision/pose.html" class="btn btn-secondary">
+                                <i class="fas fa-camera"></i> AI Form Check
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Grid (Hidden until login) -->
+                <div id="stats-section" class="grid mb-4 animate-slide-in"
+                    style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); display: none;">
+                    <div class="card flex-between">
+                        <div>
+                            <p class="mb-1" style="font-size: 0.9rem;">Day Streak</p>
+                            <h3 id="streak-display" class="text-primary" style="font-size: 2.2rem; margin: 0;">0</h3>
+                        </div>
+                        <div class="btn-icon" style="background: rgba(6, 182, 212, 0.1); color: var(--primary);">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                    </div>
+                    <div class="card flex-between">
+                        <div>
+                            <p class="mb-1" style="font-size: 0.9rem;">Total Workouts</p>
+                            <h3 id="workouts-display" style="font-size: 2.2rem; margin: 0;">0</h3>
+                        </div>
+                        <div class="btn-icon" style="background: rgba(139, 92, 246, 0.1); color: var(--secondary);">
+                            <i class="fas fa-dumbbell"></i>
+                        </div>
+                    </div>
+                    <div class="card flex-between">
+                        <div>
+                            <p class="mb-1" style="font-size: 0.9rem;">Elite Points</p>
+                            <h3 id="points-display" style="font-size: 2.2rem; margin: 0; color: #facc15;">0</h3>
+                        </div>
+                        <div class="btn-icon" style="background: rgba(250, 204, 21, 0.1); color: #facc15;">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                    </div>
+                    <div class="card flex-between">
+                        <div>
+                            <p class="mb-1" style="font-size: 0.9rem;">Current Level</p>
+                            <h3 id="level-display" style="font-size: 2.2rem; margin: 0;">1</h3>
+                        </div>
+                        <div class="btn-icon" style="background: rgba(244, 63, 94, 0.1); color: var(--accent-glow);">
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity Section (Hidden by default, used by JS) -->
+                <div id="recent-activity" class="mb-4" style="display: none;">
+                    <!-- Populated by JS -->
+                </div>
+
+                <!-- Main Content Grid -->
+                <!-- Use a 2/3 + 1/3 layout for desktop -->
+                <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));">
+
+                    <!-- Left Column: Tabs & Tools -->
+                    <div style="grid-column: span 2;">
+                        <div class="card" style="min-height: 500px;">
+                            <div class="flex gap-4 mb-4"
+                                style="border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px;">
+                                <div class="tab-btn active" onclick="switchTab('diet')"
+                                    style="cursor: pointer; padding: 10px; font-weight: 600; color: var(--primary); border-bottom: 2px solid var(--primary);">
+                                    Diet Plan</div>
+                                <div class="tab-btn" onclick="switchTab('workout')"
+                                    style="cursor: pointer; padding: 10px; font-weight: 600; color: var(--text-muted);">
+                                    Workouts</div>
+                                <div class="tab-btn" onclick="switchTab('achievements')"
+                                    style="cursor: pointer; padding: 10px; font-weight: 600; color: var(--text-muted);">
+                                    Achievements</div>
+                            </div>
+
+                            <!-- Diet Tab -->
+                            <div id="diet-tab" class="tab-content animate-fade-in">
+                                <div class="flex-between mb-3">
+                                    <h3 class="mb-0">Personalized Nutrition</h3>
+                                    <div class="flex gap-2">
+                                        <button class="btn btn-sm btn-secondary" onclick="getDietTips()">
+                                            <i class="fas fa-lightbulb"></i> Tips
+                                        </button>
+                                        <button class="btn btn-sm btn-secondary" onclick="generateDietPlan()">
+                                            <i class="fas fa-sync-alt"></i> Regenerate
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="health-metrics" class="mb-3 hidden"></div>
+                                <div id="diet-tips" class="mb-3 hidden"></div>
+                                <div id="diet-plan" class="p-4"
+                                    style="background: rgba(15, 23, 42, 0.5); border-radius: var(--radius-md); border: 1px dashed var(--border-subtle); min-height: 200px; display: flex; align-items: center; justify-content: center;">
+                                    <div class="text-center">
+                                        <i class="fas fa-lock mb-2"
+                                            style="font-size: 2rem; color: var(--text-dim);"></i>
+                                        <p>Unlock your personalized AI diet plan by logging in.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Workout Tab -->
+                            <div id="workout-tab" class="tab-content animate-fade-in" style="display: none;">
+                                <div class="flex-between mb-3">
+                                    <h3 class="mb-0">Training Schedule</h3>
+                                    <button class="btn btn-sm btn-secondary" onclick="findNearbyGyms()">
+                                        <i class="fas fa-map-marker-alt"></i> Find Gyms
+                                    </button>
+                                </div>
+                                <div id="gym-results" class="mb-3 hidden"></div>
+                                <h3 class="mb-3">Training Schedule</h3>
+                                <div id="workout-suggestions">
+                                    <p>Select your focus area to get started.</p>
+                                </div>
+                            </div>
+
+                            <!-- Achievements Tab -->
+                            <div id="achievements-tab" class="tab-content animate-fade-in" style="display: none;">
+                                <h3 class="mb-3">Your Trophies</h3>
+                                <div id="achievements-list" class="grid gap-2">
+                                    <div class="achievement-row flex items-center gap-3 p-3"
+                                        style="background: rgba(255,255,255,0.03); border-radius: var(--radius-sm);">
+                                        <div class="achievement-icon text-muted"><i class="fas fa-lock"></i></div>
+                                        <div>
+                                            <h4 style="font-size: 1rem; margin: 0;">First Steps</h4>
+                                            <p style="font-size: 0.8rem; margin: 0;">Complete your first workout</p>
+                                        </div>
+                                    </div>
+                                    <!-- More generated by JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Auth & AI -->
+                    <div style="grid-column: span 1;">
+
+                        <!-- Auth Card - Redesigned -->
+                        <div id="auth-section" class="card mb-3">
+                            <div class="text-center mb-4">
+                                <h3 class="mb-1">Member Access</h3>
+                                <p style="font-size: 0.9rem;">Login to sync your data</p>
+                            </div>
+
+                            <div class="flex gap-2 mb-3 p-1"
+                                style="background: rgba(0,0,0,0.2); border-radius: var(--radius-md);">
+                                <button class="btn btn-sm active"
+                                    style="flex: 1; background: var(--bg-card); box-shadow: 0 2px 5px rgba(0,0,0,0.2);"
+                                    onclick="showAuth('login')">Login</button>
+                                <button class="btn btn-sm" style="flex: 1; color: var(--text-muted);"
+                                    onclick="showAuth('register')">Register</button>
+                            </div>
+
+                            <div id="login-form">
+                                <div style="position: relative; margin-bottom: 15px;">
+                                    <i class="fas fa-envelope"
+                                        style="position: absolute; left: 15px; top: 15px; color: var(--text-dim);"></i>
+                                    <input type="email" id="login-email" class="form-input" placeholder="Email Address"
+                                        style="padding-left: 45px; margin-bottom: 0;">
+                                </div>
+                                <div style="position: relative; margin-bottom: 20px;">
+                                    <i class="fas fa-lock"
+                                        style="position: absolute; left: 15px; top: 15px; color: var(--text-dim);"></i>
+                                    <input type="password" id="login-password" class="form-input" placeholder="Password"
+                                        style="padding-left: 45px; margin-bottom: 0;">
+                                </div>
+                                <button class="btn btn-primary" style="width: 100%;" onclick="login()">
+                                    <i class="fas fa-sign-in-alt"></i> Sign In
+                                </button>
+                            </div>
+
+                            <div id="register-form" style="display: none;">
+                                <input type="text" id="reg-name" class="form-input" placeholder="Full Name">
+                                <input type="email" id="reg-email" class="form-input" placeholder="Email Address">
+                                <input type="password" id="reg-password" class="form-input" placeholder="Password">
+                                <div class="flex gap-2 mb-3">
+                                    <input type="number" id="reg-age" class="form-input mb-0" placeholder="Age">
+                                    <select id="reg-gender" class="form-input mb-0">
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
+                                    </select>
+                                </div>
+                                <button class="btn btn-primary" style="width: 100%;" onclick="register()">
+                                    Create Account
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- AI Coach Teaser (Now cleaner) -->
+                        <div class="card"
+                            style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(139, 92, 246, 0.05)); border: 1px solid var(--primary-dim);">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="btn-icon" style="background: var(--primary); color: white;">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                                <div>
+                                    <h4 style="margin: 0;">AI Coach</h4>
+                                    <p style="font-size: 0.8rem; margin: 0;">Always online</p>
+                                </div>
+                            </div>
+                            <p style="font-size: 0.9rem;">"I can help you adjust your diet plan or suggest a new workout
+                                routine. Just ask!"</p>
+                            <button class="btn btn-secondary" style="width: 100%;" onclick="toggleChatWindow()">
+                                <i class="fas fa-comment-dots"></i> Chat Now
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Enhanced Chat Window -->
+    <div id="aiChatWindow" class="ai-chat-window">
+        <div class="ai-chat-header">
+            <div class="flex items-center gap-3">
+                <div class="btn-icon"
+                    style="width: 32px; height: 32px; background: var(--primary-dim); color: var(--primary);"><i
+                        class="fas fa-robot"></i></div>
+                <span style="font-weight: 700; color: var(--text-main); font-size: 1.1rem;">AI Coach</span>
+            </div>
+            <button onclick="toggleChatWindow()" style="color: var(--text-muted); padding: 5px; transition: 0.2s;"><i
+                    class="fas fa-times"></i></button>
+        </div>
+
+        <div id="chatMessages" class="ai-chat-messages">
+            <!-- Messages go here -->
+            <div class="chat-bubble-ai">
+                <p style="margin: 0; font-size: 0.95rem;">Hello! I'm your advanced AI fitness assistant. Ready to crush
+                    some goals?</p>
+            </div>
+        </div>
+
+        <div class="ai-chat-footer">
+            <input type="text" id="chatInput" placeholder="Ask about diet, form, or workouts..." class="ai-chat-input">
+            <button onclick="sendMessage()" class="btn-icon"
+                style="background: var(--primary); color: #000; width: 42px; height: 42px;"><i
+                    class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <!-- Floating Chat Button -->
+    <button id="aiChatButton" onclick="toggleChatWindow()"
+        style="position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; background: var(--primary); border: none; font-size: 1.5rem; color: #000; cursor: pointer; box-shadow: 0 0 20px var(--primary-dim); z-index: 999; display: flex; align-items: center; justify-content: center; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+        <i class="fas fa-comment"></i>
+    </button>
+
+    <style>
+        #aiChatButton:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 0 30px var(--primary);
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+
+    <!-- Original Scripts + UI Logic -->
+    <script src="app.js"></script>
+
+    <script>
+        // Updated UI Helper Functions for new layout
+        function switchTab(tabName) {
+            // Hide all contents
+            document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+            // Deactivate all buttons
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('active');
+                el.style.color = "var(--text-muted)";
+                el.style.borderBottom = "none";
+            });
+
+            // Activate selected
+            document.getElementById(tabName + '-tab').style.display = 'block';
+
+            // Highlight button
+            const btn = Array.from(document.querySelectorAll('.tab-btn')).find(el => el.getAttribute('onclick').includes(tabName));
+            if (btn) {
+                btn.classList.add('active');
+                btn.style.color = "var(--primary)";
+                btn.style.borderBottom = "2px solid var(--primary)";
+            }
+        }
+
+        function showAuth(type) {
+            document.getElementById('login-form').style.display = type === 'login' ? 'block' : 'none';
+            document.getElementById('register-form').style.display = type === 'register' ? 'block' : 'none';
+
+            // Update tabs visually
+            const btns = document.querySelectorAll('#auth-section .btn-sm');
+            btns.forEach(b => {
+                b.classList.remove('active');
+                b.style.background = 'transparent';
+                b.style.color = 'var(--text-muted)';
+                b.style.boxShadow = 'none';
+            });
+
+            // Highlight clicked
+            const activeBtn = Array.from(btns).find(b => b.textContent.toLowerCase().includes(type));
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+                activeBtn.style.background = 'var(--bg-card)';
+                activeBtn.style.color = 'var(--text-main)';
+                activeBtn.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
+            }
+        }
+
+        function toggleTheme() {
+            // Already mostly dark mode, but could toggle a 'light-mode' class on body
+            // For now just alert or could implement if needed. 
+            // The user wanted "High End", usually implies dark/sleek.
+            console.log("Theme toggle clicked");
+        }
+
+        function toggleChatWindow() {
+            const chat = document.getElementById('aiChatWindow');
+            chat.style.display = chat.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        // Ensure buttons are initialized
+        switchTab('diet');
+    </script>
+</body>
+
+</html>
